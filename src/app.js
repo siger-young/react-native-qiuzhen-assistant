@@ -1,7 +1,8 @@
 import { Provider } from 'react-redux';
 import store from './redux/store';
 
-import React, {
+import React from 'react';
+import {
   AppRegistry,
   Platform,
   BackAndroid,

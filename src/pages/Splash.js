@@ -1,4 +1,5 @@
-import React, {
+import React from 'react';
+import {
   View,
   Text,
 } from 'react-native';
@@ -10,7 +11,7 @@ export default class Splash extends React.Component {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.title}>
-          
+          Welcome to React Native!
         </Text>
       </View>
     );
