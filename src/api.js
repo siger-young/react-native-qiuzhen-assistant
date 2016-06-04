@@ -4,11 +4,27 @@ class AssistantApi {
   constructor(props) {
     this.save = [];
   }
-  async getNews(classId, pageNumber = 0) {
-    let response = await fetch(`http://qiuzhen.eicbs.com/web/Listsub.aspx?ClassID=${classId}`);
+  async getSub(classId, pageNumber = 0) {
+    const url = `http://qiuzhen.eicbs.com/web/Listsub.aspx?ClassID=${classId}`;
+    const validation = this._getInputValues(url);
+    let response = await fetch(url);
     let html = await response.text();
     let doc = new DomParser().parseFromString(html,'text/html');
-    return doc.getElementById('__VIEWSTATE').getAttribute('value');
+    const maxPage = doc.getElementById('XDataList1_lblPages').textContent.split('／')[1];
+    if(pageNumber > maxPage) return [];
+    const rows = doc.getElementById('GridView1').getElementsByTagName('tr');
+    //console.log(rows);
+    let data = [];
+    for (let i = 0; i < rows.length; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      data.push({
+        title: cells[0].textContent.trim(),
+        author: cells[1].textContent.trim(),
+        date: cells[2].textContent.trim(),
+      });
+    };
+    //console.log(rows);
+    return data;
   }
   async _getInputValues(url) {
     if (this.save[url]) return this.save[url];
@@ -20,7 +36,13 @@ class AssistantApi {
     this.save[url] = { viewState, eventValidation };
     return { viewState, eventValidation };
   }
-  _toQueryString(params)
+  toQueryString(params) {
+    let parts = [];
+    for (let param in params) {
+      parts.push(`${param}=${encodeURIComponent(params[param])}`);
+    }
+    return parts.join('&');
+  }
 }
 const Api = new AssistantApi();
 

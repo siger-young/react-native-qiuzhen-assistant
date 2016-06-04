@@ -16,10 +16,14 @@ export default class Splash extends React.Component {
   }
   async componentWillMount() {
     // let data = '';
-    const data = await AssistantApi.getNews(21);
+    const data = await AssistantApi.getSub(21);
+    // const data = AssistantApi.toQueryString({
+    //   p1: "abc",
+    //   p2: "&=",
+    // });
     // alert(data);
     this.setState({
-      text: data,
+      text: data[0].author,
     });
   }
 
