@@ -12,6 +12,39 @@ import {
 import Splash from './pages/Splash';
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    if (!App.instance) {
+      App.instance = this;
+    }
+  }
+  static getInstance() {
+    return App.instance;
+  }
+  push(router) {
+    this.navigator.push(router);
+  }
+  pop(num = 1) {
+    const nav = this.navigator;
+    const routes = nav.getCurrentRoutes();
+    if (num === 1) {
+      nav.pop();
+    } else {
+      if (routes.length > num) {
+        nav.popToRoute(routes[routes.length - 1 - num]);
+      }
+    }
+  }
+  popToRoot() {
+    const nav = this.navigator;
+    const routes = nav.getCurrentRoutes();
+    if (routes.length > 1) {
+      nav.popToRoute(routes[0]);
+    }
+  }
+  replace(page) {
+    this.navigator.replace(page);
+  }
   componentWillMount() {
     if (Platform.OS === 'android') {
       BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid);

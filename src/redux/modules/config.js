@@ -1,6 +1,6 @@
 import { createAction, handleActions } from 'redux-actions';
 
-import Colors from '../../themes';
+import Themes from '../../themes';
 // Action types;
 export const INITIAL_OVER = 'app/session/initial_over';
 export const CHANGE_THEME = 'app/session/change_theme';
@@ -8,25 +8,24 @@ export const CHANGE_THEME = 'app/session/change_theme';
 const initialState = {
   appName: '求真帮',
   appVersion: 'v0.3',
-  theme: Colors[0],
+  theme: Themes[0],
   options: {
     notifications: true,
-  }
+  },
 };
-
 // reducer
 const reducer = handleActions({
   [INITIAL_OVER]: (state, action) => {
     return {
       ...state,
-      ...action.payload
-    }
+      ...action.payload,
+    };
   },
   [CHANGE_THEME]: (state, action) => {
     return {
       ...state,
       theme: action.payload,
-    }
+    };
   },
 }, initialState);
 export default reducer;
