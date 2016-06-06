@@ -9,7 +9,7 @@ import {
   Navigator,
 } from 'react-native';
 
-import Splash from './pages/Splash';
+import Router from './router';
 
 class App extends React.Component {
   constructor(props) {
@@ -64,9 +64,7 @@ class App extends React.Component {
     }
     return false;
   };
-  initialRoute = {
-    component: Splash,
-  };
+  initialRoute = Router.pages.News;
   configureScene() {
     if (Platform.OS === 'ios') {
       return Navigator.SceneConfigs.PushFromRight;

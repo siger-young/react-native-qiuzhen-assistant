@@ -1,12 +1,15 @@
 import Splash from './pages/Splash';
 import News from './pages/News';
+
+import root from './app';
+
 let Pages = {};
 Pages.Splash = {
-  component: Splash
+  component: Splash,
 };
 
 Pages.News = {
-  component: News
+  component: News,
 };
 
 export default class Router {

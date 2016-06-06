@@ -7,6 +7,7 @@ import {
 import styles from './Splash.styles';
 import AssistantApi from '../api';
 import { connect } from 'react-redux';
+import Router from '../router';
 
 class Splash extends React.Component {
   constructor(props) {
@@ -16,21 +17,10 @@ class Splash extends React.Component {
       page: 1,
     };
   }
-  async componentDidMount() {
-    // const sub = await AssistantApi.getFilter();
-    // console.log(sub);
-    // this.setState({
-    //   text: sub.data,
-    // });
-    // setInterval(async () => {
-    //   const data = await AssistantApi.getSub(21, this.state.page);
-    //   this.setState({
-    //     text: data
-    //   });
-    //   this.setState({
-    //     page: this.state.page + 1,
-    //   });
-    // }, 10000);
+  componentDidMount() {
+    setTimeout(()=>{
+      Router.replace(Router.pages.News)
+    }, 5000);
   }
 
   render() {

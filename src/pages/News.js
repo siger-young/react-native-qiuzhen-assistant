@@ -6,6 +6,7 @@ import {
 
 import styles from './News.styles';
 import AssistantApi from '../api';
+import Toolbar from '../components/Toolbar';
 
 export default class News extends React.Component {
   constructor(props) {
@@ -16,23 +17,15 @@ export default class News extends React.Component {
   }
   async componentWillMount() {
     // let data = '';
-    const data = await AssistantApi.getSub(21);
-    // const data = AssistantApi.toQueryString({
-    //   p1: "abc",
-    //   p2: "&=",
-    // });
-    // alert(data);
-    this.setState({
-      text: data[0].author,
-    });
+
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>
-          {this.state.text}
-        </Text>
+        <Toolbar
+          title={'新闻'}
+          />
       </View>
     );
   }
