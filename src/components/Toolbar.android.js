@@ -1,19 +1,27 @@
 import React from 'react';
-
+import {
+  StatusBar,
+  View,
+} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 
 class Toolbar extends React.Component {
   static defaultProps = {
     actions: [],
-    onIconClicked: () => {},
-    
     navIconName: 'menu',
+    onIconClicked: () => {},
+    title: '',
+    titleColor: 'white',
+    iconColor: 'white',
   };
   static propTypes = {
     actions: React.PropTypes.array,
     navIconName: React.PropTypes.string,
     onIconClicked: React.PropTypes.func,
+    title: React.PropTypes.string,
+    titleColor: React.PropTypes.string,
+    iconColor: React.PropTypes.string,
   };
   render() {
     const { bgColor } = this.props;
@@ -23,8 +31,9 @@ class Toolbar extends React.Component {
         actions={this.props.actions }
         navIconName={this.props.navIconName}
         onIconClicked={this.props.onIconClicked}
-        titleColor={'white'}
-        iconColor={'white'}>
+        titleColor={this.props.titleColor}
+        iconColor={this.props.iconColor}
+        title={this.props.title}>
       </MaterialIcons.ToolbarAndroid>
     );
   }
@@ -32,4 +41,4 @@ class Toolbar extends React.Component {
 
 export default connect(state => ({
   bgColor: state.config.theme.colors.primary,
-}), dispatch => {})(Toolbar);
+}), dispatch => ({}))(Toolbar);

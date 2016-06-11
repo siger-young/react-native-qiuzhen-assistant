@@ -10,6 +10,9 @@ Pages.Splash = {
 
 Pages.News = {
   component: News,
+  params: {
+    title: '新闻',
+  }
 };
 
 export default class Router {

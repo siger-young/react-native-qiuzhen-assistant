@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  listView: {
+    flex: 1,
+  },
 });
 
 export default styles;

@@ -1,11 +1,28 @@
-const DomParser = require('react-native-html-parser').DOMParser;
+const DomParser = require('react-native-parser').DOMParser;
 
 class AssistantApi {
   constructor(props) {
     this.save = [];
   }
+  async getArticleInfo(url) {
+    // console.log("A, I'm here");
+    let response = await fetch(url);
+    // console.log(url);
+    let html = await response.text();
+    let doc = new DomParser().parseFromString(html, 'text/html');
+    let exp = RegExp('\u4F5C\u8005.*?\\s', 'igm');
+    const author = exp.exec(doc.getElementsByClassName('disp_info')[0].textContent)[0].split(':')[1].trim();
+    const article = doc.getElementsByClassName('disp_content')[0];
+    // console.log(articleHtml);
+    return {
+      author,
+      html: article.toString(),
+      summary: article.textContent.trim().split('\n')[0],
+    };
+  }
   async getSub(classId, pageNumber = 1) {
     const url = `http://qiuzhen.eicbs.com/web/Listsub.aspx?ClassID=${classId}`;
+    const baseUrl = this.parseUrl(url).absolutePath; 
     const validation = await this._getInputValues(url, 'news', classId);
     let response = await fetch(url,
       {
@@ -31,20 +48,25 @@ class AssistantApi {
     //     }));
     // console.log(html);
     let doc = new DomParser().parseFromString(html, 'text/html');
-    const maxPage = doc.getElementById('XDataList1_lblPages').textContent.split('／')[1];
+    const maxPage = doc.getElementById('XDataList1_lblPages').textContent.split('\uFF0F')[1];
     if (pageNumber > maxPage) return [];
     const rows = doc.getElementById('GridView1').getElementsByTagName('tr');
     // console.log(rows);
     let data = [];
     for (let i = 0; i < rows.length; i++) {
+      // console.log(i);
       const cells = rows[i].getElementsByTagName('td');
-      data.push({
+      const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
+      let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+      // console.log(articleInfo);
+      data[i] = {
+        key: `${pageNumber}${i}`*1,
         title: cells[0].textContent.trim(),
-        author: cells[1].textContent.trim(),
-        date: cells[2].textContent.trim(),
-      });
+        date: new Date(cells[2].textContent.trim()),
+        ...articleInfo,
+      };
     }
-    // console.log(rows);
+    // console.log(data);
     return {
       pageTotal: maxPage,
       currentPage: pageNumber,
@@ -151,6 +173,33 @@ class AssistantApi {
         parts.push(`${param}=${encodeURIComponent(params[param])}`);
     }
     return parts.join('&');
+  }
+  parseUrl(url) {
+    const s1 = url.indexOf('://') === -1 ? 0 : url.indexOf(':\/\/');
+    // console.log(s1);
+    const s2 = s1 + 3;
+    const protocol = url.slice(0, s1);
+    // console.log('host');
+    const s3 = url.indexOf('/', s2);
+    const host = url.slice(s2, s3);
+    // console.log(s3);
+    const oppositePath = url.slice(s3 + 1);
+    // console.log(`oppositePath: ${oppositePath}`);
+    const segs = oppositePath.split('/');
+    const pathSegs = segs.slice(0, -1);
+    // console.log(segs)
+    // console.log(pathSegs)
+    // console.log(`${protocol}://${host}/${pathSegs.join('/')}/`);
+    // segs.pop();
+    // console.log(segs[segs.length - 1]);
+    // console.log(protocol);
+    return {
+      protocol,
+      host,
+      path: `/${pathSegs.join('/')}/`,
+      absolutePath: `${protocol}://${host}/${pathSegs.join('/')}/`,
+      segs,
+    };
   }
 }
 const Api = new AssistantApi();
