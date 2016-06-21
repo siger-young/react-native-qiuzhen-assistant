@@ -52,20 +52,65 @@ class AssistantApi {
     if (pageNumber > maxPage) return [];
     const rows = doc.getElementById('GridView1').getElementsByTagName('tr');
     // console.log(rows);
-    let data = [];
+    let promises = [];
     for (let i = 0; i < rows.length; i++) {
-      // console.log(i);
-      const cells = rows[i].getElementsByTagName('td');
-      const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
-      let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
       // console.log(articleInfo);
-      data[i] = {
-        key: `${pageNumber}${i}`*1,
-        title: cells[0].textContent.trim(),
-        date: new Date(cells[2].textContent.trim()),
-        ...articleInfo,
-      };
+      promises[i] = new Promise(async (resolve) => {
+      // console.log(i);
+        console.log(`Promise[${i}] Start`);
+        const cells = rows[i].getElementsByTagName('td');
+        const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
+        // let articleInfo = {
+        //   author: "蛤蛤",
+        //   html: "2333333",
+        //   summary: "233333333333333333333333333333333333333333333333啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊",
+        // };
+        let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+        console.log(`Promise[${i}] Resolve`);
+        const articleData = {
+          key: `${pageNumber}${i}`*1,
+          title: cells[0].textContent.trim(),
+          date: new Date(cells[2].textContent.trim()),
+          ...articleInfo,
+        }
+        resolve(articleData);
+        // setTimeout(async () => {
+        //   console.log(`Promise[${i}] Start`);
+        //   const cells = rows[i].getElementsByTagName('td');
+        //   const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
+        //   // let articleInfo = {
+        //   //   author: "蛤蛤",
+        //   //   html: "2333333",
+        //   //   summary: "233333333333333333333333333333333333333333333333啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊",
+        //   // };
+        //   let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+        //   console.log(`Promise[${i}] Resolve`);
+        //   const articleData = {
+        //     key: `${pageNumber}${i}`*1,
+        //     title: cells[0].textContent.trim(),
+        //     date: new Date(cells[2].textContent.trim()),
+        //     ...articleInfo,
+        //   }
+        //   resolve(articleData);
+        // }, 100);
+      });
+      // console.log("[Promise OK]"+i);
     }
+    let data = await Promise.all(promises);
+    // let data= [];
+    // for (let i = 0; i < rows.length; i++) {
+    //   // console.log(articleInfo);
+    //   // console.log(i);
+    //   const cells = rows[i].getElementsByTagName('td');
+    //   const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
+    //   let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+    //   data[i] = {
+    //     key: `${pageNumber}${i}`*1,
+    //     title: cells[0].textContent.trim(),
+    //     date: new Date(cells[2].textContent.trim()),
+    //     ...articleInfo,
+    //   };
+    // }
     // console.log(data);
     return {
       pageTotal: maxPage,

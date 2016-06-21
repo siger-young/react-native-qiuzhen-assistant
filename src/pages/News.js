@@ -16,12 +16,7 @@ class News extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [{
-        author: 'SigerYoung',
-        date: new Date('1989/06/04'),
-        title: '求真中学开展六四悼念活动',
-        summary: '在1989年6月4日的学生运动中',
-      }],
+      data: [],
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
       page: 1,
       pageTotal: 1,
@@ -29,22 +24,23 @@ class News extends React.Component {
   }
   async componentWillMount() {
     let sub = await AssistantApi.getSub(23);
-    console.log(sub.data);
+    // console.log(sub.data);
     // let data = '';
     this.setState({
       data: this.state.data.concat(sub.data),
-      // dataSource: this.state.dataSource.cloneWithRows(sub.data),
+      dataSource: this.state.dataSource.cloneWithRows(sub.data),
       pageTotal: sub.pageTotal,
     });
   }
   async loadNext() {
-    console.log(this.state.page);
-    console.log(this.state.data);
-    if(this.state.page === this.state.pageTotal)
+    // console.log(this.state.page);
+    // console.log(this.state.data);
+    if(this.state.page === this.state.pageTotal || this.state.dataSource.getRowCount() === 0)
       return;
     let sub = await AssistantApi.getSub(23, this.state.page + 1);
     this.setState({
       data: this.state.data.concat(sub.data),
+      dataSource: this.state.dataSource.cloneWithRows(this.state.data.concat(sub.data)),
       // dataSource: this.state.dataSource.cloneWithRows(sub.data.concat(this.state.data)),
       page: this.state.page + 1,
     });
@@ -84,11 +80,12 @@ class News extends React.Component {
         <Toolbar title={this.props.title} />
         <ListView
           style={styles.listView}
-          dataSource={this.state.dataSource.cloneWithRows(this.state.data)}
+          dataSource={this.state.dataSource}
           renderRow={this.renderRow}
           renderSeparator={this.renderSeparator.bind(this)}
           pageSize={15}
           initialListSize={15}
+          scrollRenderAheadDistance={400}
           onEndReachedThreshold={50}
           onEndReached={this.loadNext.bind(this)} />
       </View>
