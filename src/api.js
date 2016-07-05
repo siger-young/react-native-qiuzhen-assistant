@@ -53,51 +53,22 @@ class AssistantApi {
     if (pageNumber > maxPage) return [];
     const rows = doc.getElementById('GridView1').getElementsByTagName('tr');
     // console.log(rows);
-    let promises = [];
-    for (let i = 0; i < rows.length; i++) {
+    let data = [];
+    const startIndex = ( pn - 1 ) * count % 15;
+    for (let i = ( pn - 1 ) * count % 15; i < (rows.length > startIndex + 5 ? startIndex + 5 : rows.length); i++) {
       // console.log(articleInfo);
-      promises[i] = new Promise(async (resolve) => {
       // console.log(i);
-        console.log(`Promise[${i}] Start`);
-        const cells = rows[i].getElementsByTagName('td');
-        const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
-        // let articleInfo = {
-        //   author: "蛤蛤",
-        //   html: "2333333",
-        //   summary: "233333333333333333333333333333333333333333333333啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊",
-        // };
-        let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
-        console.log(`Promise[${i}] Resolve`);
-        const articleData = {
-          key: `${pageNumber}${i}`*1,
-          title: cells[0].textContent.trim(),
-          date: new Date(cells[2].textContent.trim()),
-          ...articleInfo,
-        }
-        resolve(articleData);
-        // setTimeout(async () => {
-        //   console.log(`Promise[${i}] Start`);
-        //   const cells = rows[i].getElementsByTagName('td');
-        //   const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
-        //   // let articleInfo = {
-        //   //   author: "蛤蛤",
-        //   //   html: "2333333",
-        //   //   summary: "233333333333333333333333333333333333333333333333啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊",
-        //   // };
-        //   let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
-        //   console.log(`Promise[${i}] Resolve`);
-        //   const articleData = {
-        //     key: `${pageNumber}${i}`*1,
-        //     title: cells[0].textContent.trim(),
-        //     date: new Date(cells[2].textContent.trim()),
-        //     ...articleInfo,
-        //   }
-        //   resolve(articleData);
-        // }, 100);
-      });
-      // console.log("[Promise OK]"+i);
+      const cells = rows[i].getElementsByTagName('td');
+      const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
+      let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+      data[i] = {
+        key: `${pageNumber}${i}`*1,
+        title: cells[0].textContent.trim(),
+        date: new Date(cells[2].textContent.trim()),
+        ...articleInfo,
+      };
     }
-    let data = await Promise.all(promises);
+    // console.log(data);
     // let data= [];
     // for (let i = 0; i < rows.length; i++) {
     //   // console.log(articleInfo);
