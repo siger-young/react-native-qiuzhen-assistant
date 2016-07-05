@@ -18,13 +18,7 @@ class News extends React.Component {
     super(props);
     this.state = {
       data: [],
-<<<<<<< HEAD:src/pages/News.android.js
-<<<<<<< HEAD:src/pages/News.android.js
       isRefreshing: true,
-=======
->>>>>>> d72904313486d7a0cc74b70b698cbc75e373d2e2:src/pages/News.js
-=======
->>>>>>> d72904313486d7a0cc74b70b698cbc75e373d2e2:src/pages/News.js
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
       page: 1,
       pageTotal: 1,
