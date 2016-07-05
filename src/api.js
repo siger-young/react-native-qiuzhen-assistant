@@ -113,7 +113,6 @@ class AssistantApi {
     //   };
     // }
     // console.log(data);
->>>>>>> d72904313486d7a0cc74b70b698cbc75e373d2e2
     return {
       pageTotal: maxPage,
       currentPage: pageNumber,
