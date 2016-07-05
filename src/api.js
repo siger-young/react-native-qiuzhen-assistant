@@ -20,7 +20,8 @@ class AssistantApi {
       summary: article.textContent.trim().split('\n')[0],
     };
   }
-  async getSub(classId, pageNumber = 1) {
+  async getSub(classId, pn = 1, count = 5) {
+    const pageNumber = Math.ceil( pn * count / 15 ); 
     const url = `http://qiuzhen.eicbs.com/web/Listsub.aspx?ClassID=${classId}`;
     const baseUrl = this.parseUrl(url).absolutePath; 
     const validation = await this._getInputValues(url, 'news', classId);
@@ -53,7 +54,8 @@ class AssistantApi {
     const rows = doc.getElementById('GridView1').getElementsByTagName('tr');
     // console.log(rows);
     let data = [];
-    for (let i = 0; i < rows.length; i++) {
+    const startIndex = ( pn - 1 ) * count % 15;
+    for (let i = ( pn - 1 ) * count % 15; i < (rows.length > startIndex + 5 ? startIndex + 5 : rows.length); i++) {
       // console.log(i);
       const cells = rows[i].getElementsByTagName('td');
       const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
