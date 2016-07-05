@@ -56,11 +56,11 @@ class AssistantApi {
     let data = [];
     const startIndex = ( pn - 1 ) * count % 15;
     for (let i = ( pn - 1 ) * count % 15; i < (rows.length > startIndex + 5 ? startIndex + 5 : rows.length); i++) {
+      // console.log(articleInfo);
       // console.log(i);
       const cells = rows[i].getElementsByTagName('td');
       const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
       let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
-      // console.log(articleInfo);
       data[i] = {
         key: `${pageNumber}${i}`*1,
         title: cells[0].textContent.trim(),
@@ -68,7 +68,7 @@ class AssistantApi {
         ...articleInfo,
       };
     }
-    // console.log(data);
+    console.log(data);
     return {
       pageTotal: maxPage,
       currentPage: pageNumber,

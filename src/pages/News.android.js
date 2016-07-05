@@ -18,13 +18,17 @@ class News extends React.Component {
     super(props);
     this.state = {
       data: [],
+<<<<<<< HEAD:src/pages/News.android.js
       isRefreshing: true,
+=======
+>>>>>>> d72904313486d7a0cc74b70b698cbc75e373d2e2:src/pages/News.js
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
       page: 1,
       pageTotal: 1,
     };
   }
   async componentWillMount() {
+<<<<<<< HEAD:src/pages/News.android.js
     this.setState({
       isRefreshing: true,
     }, async () => {
@@ -41,6 +45,7 @@ class News extends React.Component {
 
   }
   async loadNext() {
+<<<<<<< HEAD:src/pages/News.android.js
     this.setState({
       isRefreshing: true,
     });
@@ -52,6 +57,7 @@ class News extends React.Component {
     this.setState({
       isRefreshing: false,
       data: this.state.data.concat(sub.data),
+      dataSource: this.state.dataSource.cloneWithRows(this.state.data.concat(sub.data)),
       // dataSource: this.state.dataSource.cloneWithRows(sub.data.concat(this.state.data)),
       page: this.state.page + 1,
     });
@@ -91,11 +97,12 @@ class News extends React.Component {
         <Toolbar title={this.props.title} />
         <ListView
           style={styles.listView}
-          dataSource={this.state.dataSource.cloneWithRows(this.state.data)}
+          dataSource={this.state.dataSource}
           renderRow={this.renderRow}
           renderSeparator={this.renderSeparator.bind(this)}
           pageSize={15}
           initialListSize={15}
+          scrollRenderAheadDistance={400}
           onEndReachedThreshold={50}
           scrollRenderAheadDistance={400}
           onEndReached={this.loadNext.bind(this)}
