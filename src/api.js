@@ -1,4 +1,4 @@
-const DomParser = require('react-native-parser').DOMParser;
+const DomParser = require('./parser').DOMParser;
 
 class AssistantApi {
   constructor(props) {
