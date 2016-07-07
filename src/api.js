@@ -60,9 +60,12 @@ class AssistantApi {
       // console.log(i);
       const cells = rows[i].getElementsByTagName('td');
       const href = cells[0].getElementsByTagName('a')[0].getAttribute('href');
-      let articleInfo = await this.getArticleInfo(`${baseUrl}${href}`);
+      const url = `${baseUrl}${href}`;
+      let articleInfo = await this.getArticleInfo(url);
+      console.log((pn - 1) * count + i);
       data[i] = {
-        key: `${pageNumber}${i}`*1,
+        key: (pn - 1) * count + i,
+        url: url,
         title: cells[0].textContent.trim(),
         date: new Date(cells[2].textContent.trim()),
         ...articleInfo,
@@ -86,7 +89,7 @@ class AssistantApi {
     // console.log(data);
     return {
       pageTotal: maxPage,
-      currentPage: pageNumber,
+      currentPage: pn,
       data,
     };
   }
@@ -116,6 +119,7 @@ class AssistantApi {
     const url = 'http://qiuzhen.eicbs.com/schinfo/A20/Score/ScoreSGTotal.aspx';
     const validation = await this._getInputValues(url, 'score', 'general');
     const submitButton = isGrade ? 'Button3' : 'Button2';
+    const tableName = isGrade ? 'DataGrid1Grade' : 'DataGrid1Class';
     // console.log({
     //   ddlSchYear: year,
     //   ddlSchTerm: term,
@@ -135,8 +139,40 @@ class AssistantApi {
       })
     );
     let html = await response.text();
+    //console.log(html);
+    const doc = new DomParser().parseFromString(html, 'text/html');
+    const rows = doc.getElementById(tableName).getElementsByTagName('tr');
+    const getLink = (href) => {
+      var pattern = /DataGrid.*\d/;
+      return pattern.exec(href)[0];
+    };
+    const where = (array, key) => {
+      for(let i = 0; i < array.length; i++) {
+        if(array[i].className === key)
+          return i;
+      }
+      return -1;
+    };
+    let data = [];
+    for(let i = 1; i < rows.length - 1; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      const className = cells[3].textContent.trim();
+      where(data, className) !== -1 || (data.push({
+        key: data.length,
+        className,
+        exams: [],
+      }));
+      data[where(data, className)].exams.push(
+        {
+          examName: cells[2].textContent.trim(),
+          examLink: getLink(cells[4].getElementsByTagName('a')[0].getAttribute('href')),
+        }
+      );
+      //console.log(i);
+    }
     // console.log(html);
-    return 0;
+    console.log(data);
+    return data;
   }
   async _getCookies(login) {
     let response = await fetch('http://qiuzhen.eicbs.com/web/manage/login/login.aspx',

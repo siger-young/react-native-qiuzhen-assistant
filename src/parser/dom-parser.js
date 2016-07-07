@@ -173,7 +173,7 @@ DOMHandler.prototype = {
 	 * @link http://www.saxproject.org/apidoc/org/xml/sax/ErrorHandler.html
 	 */
 	warning:function(error) {
-		console.warn('[xmldom warning]\t'+error,_locator(this.locator));
+		// console.warn('[xmldom warning]\t'+error,_locator(this.locator));
 	},
 	error:function(error) {
 		console.error('[xmldom error]\t'+error,_locator(this.locator));

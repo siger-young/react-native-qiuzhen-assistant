@@ -1,40 +1,48 @@
 import React from 'react';
 import {
   DrawerLayoutAndroid,
+  Text,
+  TouchableHighlight,
   View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import styles from './Drawer.styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
+import Router from '../router';
 
 class Drawer extends React.Component {
   static defaultProps = {
-    onDrawerClose: () => {},
-    onDrawerOpen: () => {},
+    drawerWidth: 150,
     onDrawerSlide: () => {},
+    onDrawerStateChanged: () => {},
+    onDrawerOpen: () => {},
+    onDrawerClose: () => {},
   };
   static propTypes = {
     ...View.propTypes,
-    keyboardDismissMode: ReactPropTypes.oneOf([
+    keyboardDismissMode: React.PropTypes.oneOf([
       'none', // default
       'on-drag',
     ]),
-    drawerBackgroundColor: ColorPropType,
-    drawerPosition: ReactPropTypes.oneOf([
-      DrawerConsts.DrawerPosition.Left,
-      DrawerConsts.DrawerPosition.Right
+    // drawerBackgroundColor: ColorPropType,
+    drawerPosition: React.PropTypes.oneOf([
+      DrawerLayoutAndroid.positions.left,
+      DrawerLayoutAndroid.positions.right,
     ]),
-    drawerWidth: ReactPropTypes.number,
-    drawerLockMode: ReactPropTypes.oneOf([
+    drawerWidth: React.PropTypes.number,
+    drawerLockMode: React.PropTypes.oneOf([
       'unlocked',
       'locked-closed',
       'locked-open'
     ]),
-    onDrawerSlide: ReactPropTypes.func,
-    onDrawerStateChanged: ReactPropTypes.func,
-    onDrawerOpen: ReactPropTypes.func,
-    onDrawerClose: ReactPropTypes.func,
-    renderNavigationView: ReactPropTypes.func.isRequired,
-    statusBarBackgroundColor: ColorPropType,
+    onDrawerSlide: React.PropTypes.func,
+    onDrawerStateChanged: React.PropTypes.func,
+    onDrawerOpen: React.PropTypes.func,
+    onDrawerClose: React.PropTypes.func,
+    // renderNavigationView: React.PropTypes.func.isRequired,
+    // statusBarBackgroundColor: ColorPropType,
   };
   openDrawer() {
     this.drawer.openDrawer();
@@ -43,8 +51,30 @@ class Drawer extends React.Component {
     this.drawer.closeDrawer();
   }
   renderDrawer() {
+    const { colors } = this.props;
     return(
-      <View>
+      <View style={styles.navigation}>
+      {
+        Router.navigation && Router.navigation.map((v, k) => {
+          return (
+            <TouchableHighlight
+              onPress={() => {
+                const { navigator } = this.props;
+                console.log(navigator.getCurrentRoutes());
+                Router.gotoPage(v.page, {
+                  test: 1
+                });
+              }}
+              key={k}
+              underlayColor={colors.light}>
+              <View style={styles.navigationItem}>
+                <Icon size={24} color={colors.primary} name={v.icon} />
+                <Text style={styles.navigationText}>{v.title}</Text>
+              </View>
+            </TouchableHighlight>
+          );
+        })
+      }
       </View>
     );
   }
@@ -52,16 +82,19 @@ class Drawer extends React.Component {
     const { bgColor } = this.props;
     return (
       <DrawerLayoutAndroid
-        ref={(drawer) => this.drawer = drawer}
+        ref={(drawer) => global.drawer = drawer}
         renderNavigationView={this.renderDrawer.bind(this)}
+        drawerWidth={this.props.drawerWidth}
         onDrawerClose={this.props.onDrawerClose}
+        // drawerBackgroundColor={bgColor}
         onDrawerOpen={this.props.onDrawerOpen}
         onDrawerSlide={this.props.onDrawerSlide}>
+        {this.props.children}
       </DrawerLayoutAndroid>
     );
   }
 }
 
 export default connect(state => ({
-  bgColor: state.config.theme.colors.primary,
-}), dispatch => ({}))(Toolbar);
+  colors: state.config.theme.colors,
+}), dispatch => ({}))(Drawer);

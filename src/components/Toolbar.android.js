@@ -3,6 +3,8 @@ import {
   StatusBar,
   View,
 } from 'react-native';
+
+import styles from './Toolbar.styles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 

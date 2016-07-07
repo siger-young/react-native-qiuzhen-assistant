@@ -1,5 +1,7 @@
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Splash from './pages/Splash';
 import News from './pages/News';
+import Mark from './pages/Mark'
 
 import root from './app';
 
@@ -14,6 +16,28 @@ Pages.News = {
     title: '新闻',
   }
 };
+
+Pages.Mark = {
+  component: Mark,
+  params: {
+    title: '成绩',
+  }
+};
+
+let Navigation = [
+  {
+    title: '新闻',
+    page: Pages.News,
+    //icon: (<Icon name="assignment" size={30} color="#900" />),
+    icon: 'assignment',
+  },
+  {
+    title: '成绩',
+    page: Pages.Mark,
+    //icon: (<Icon name="library-books" size={30} color="#900" />),
+    icon: 'library-books',
+  }
+]
 
 export default class Router {
   static gotoPage(page, data) {
@@ -48,4 +72,5 @@ export default class Router {
     root.getInstance().replace(router);
   }
   static pages = Pages;
+  static navigation = Navigation;
 }

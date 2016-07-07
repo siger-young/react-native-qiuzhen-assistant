@@ -11,7 +11,7 @@ import {
 
 import Router from './router';
 
-class App extends React.Component {
+export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (!App.instance) {
@@ -64,7 +64,7 @@ class App extends React.Component {
     }
     return false;
   };
-  initialRoute = Router.pages.News;
+  initialRoute = Router.pages.Mark;
   configureScene() {
     if (Platform.OS === 'ios') {
       return Navigator.SceneConfigs.PushFromRight;
