@@ -13,6 +13,7 @@ import Toolbar from '../components/Toolbar';
 import NewsCard from '../components/News/NewsCard';
 import Drawer from '../components/Drawer';
 import { connect } from 'react-redux';
+import Router from '../router'
 
 class News extends React.Component {
   constructor(props) {
@@ -74,6 +75,12 @@ class News extends React.Component {
   onRefresh() {
     this.clear(this.loadFirst.bind(this));
   }
+  goNews(title, url) {
+    Router.gotoPage(Router.pages.NewsView, {
+      title: title,
+      url: url,
+    })
+  }
   renderRow(row) {
     try {
     const dateString = `${row.date.getFullYear()}年${row.date.getMonth()+1}月${row.date.getDate()+1}日`;
@@ -84,7 +91,10 @@ class News extends React.Component {
         date={dateString}
         title={row.title}
         url={row.url}
-        summary={row.summary} />
+        summary={row.summary}
+        handler={() => {
+          this.goNews(row.title, row.url);
+        }}/>
     );
     } catch(err) {
       alert(err.title);
@@ -103,41 +113,39 @@ class News extends React.Component {
   render() {
     const { bgColor, colors } = this.props;
     return (
-      <Drawer>
-        <View style={styles.container}>
-          <StatusBar
-            animated={true}
-            //idden={true}
-            backgroundColor={bgColor}
-            translucent={true}
-            barStyle={"light-content"} />
-          <Toolbar
-            title={this.props.title}
-            onIconClicked={this.openDrawer.bind(this)} />
-          <ListView
-            style={styles.listView}
-            dataSource={this.state.dataSource}
-            renderRow={this.renderRow}
-            renderSeparator={this.renderSeparator.bind(this)}
-            pageSize={15}
-            initialListSize={15}
-            scrollRenderAheadDistance={400}
-            onEndReachedThreshold={50}
-            scrollRenderAheadDistance={400}
-            onEndReached={this.loadNext.bind(this)}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.isRefreshing}
-                onRefresh={this.onRefresh.bind(this)}
-                tintColor={'white'}
-                title="Loading..."
-                colors={[colors.dark, colors.primary, colors.light]}
-                progressBackgroundColor={'white'}
-              />
-            }
+      <View style={styles.container}>
+        <StatusBar
+          animated={true}
+          //idden={true}
+          backgroundColor={bgColor}
+          translucent={true}
+          barStyle={"light-content"} />
+        <Toolbar
+          title={this.props.title}
+          onIconClicked={this.openDrawer.bind(this)} />
+        <ListView
+          style={styles.listView}
+          dataSource={this.state.dataSource}
+          renderRow={this.renderRow.bind(this)}
+          renderSeparator={this.renderSeparator.bind(this)}
+          pageSize={15}
+          initialListSize={15}
+          scrollRenderAheadDistance={400}
+          onEndReachedThreshold={50}
+          scrollRenderAheadDistance={400}
+          onEndReached={this.loadNext.bind(this)}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isRefreshing}
+              onRefresh={this.onRefresh.bind(this)}
+              tintColor={'white'}
+              title="Loading..."
+              colors={[colors.dark, colors.primary, colors.light]}
+              progressBackgroundColor={'white'}
             />
-        </View>
-      </Drawer>
+          }
+          />
+      </View>
     );
   }
 }

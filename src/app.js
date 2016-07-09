@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import Router from './router';
+import Drawer from './components/Drawer'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -45,6 +46,9 @@ export default class App extends React.Component {
   replace(page) {
     this.navigator.replace(page);
   }
+  jumpTo(page) {
+    this.navigator.jumpTo(page);
+  }
   componentWillMount() {
     if (Platform.OS === 'android') {
       BackAndroid.addEventListener('hardwareBackPress', this.onBackAndroid);
@@ -64,7 +68,7 @@ export default class App extends React.Component {
     }
     return false;
   };
-  initialRoute = Router.pages.Mark;
+  initialRoute = Router.pages.News;
   configureScene() {
     if (Platform.OS === 'ios') {
       return Navigator.SceneConfigs.PushFromRight;
@@ -75,7 +79,9 @@ export default class App extends React.Component {
     const Component = route.component;
 
     return (
-      <Component {...route.params} navigator={navigator} />
+      <Drawer drawerLockMode={route.params.drawerLockMode} navigator={navigator}>
+        <Component {...route.params} navigator={navigator} />
+      </Drawer>
     );
   }
   render() {

@@ -26,10 +26,10 @@ class Toolbar extends React.Component {
     iconColor: React.PropTypes.string,
   };
   render() {
-    const { bgColor } = this.props;
+    const bgColor = this.props.color || this.props.bgColor;
     return (
       <MaterialIcons.ToolbarAndroid
-        style={{ height: 56, backgroundColor: bgColor }}
+        style={[{ height: 56, backgroundColor: bgColor }, this.props.style]}
         actions={this.props.actions }
         navIconName={this.props.navIconName}
         onIconClicked={this.props.onIconClicked}

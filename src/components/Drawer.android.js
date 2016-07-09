@@ -3,6 +3,7 @@ import {
   DrawerLayoutAndroid,
   Text,
   TouchableHighlight,
+  Vibration,
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -15,6 +16,7 @@ import Router from '../router';
 class Drawer extends React.Component {
   static defaultProps = {
     drawerWidth: 150,
+    drawerLockMode: 'unlocked',
     onDrawerSlide: () => {},
     onDrawerStateChanged: () => {},
     onDrawerOpen: () => {},
@@ -50,21 +52,29 @@ class Drawer extends React.Component {
   closeDrawer() {
     this.drawer.closeDrawer();
   }
+  goNav(page) {
+    //Vibration.vibrate();
+    const { navigator } = this.props;
+    const routes = navigator.getCurrentRoutes();
+    for(let i = 0; i < routes.length; i++) {
+      const current = routes[i];
+      //console.log(current.params.title+' '+page.params.title);
+      if(current.params.title === page.params.title) {
+        Router.jumpTo(current);
+        return;
+      }
+    }
+    Router.gotoPage(page);
+  }
   renderDrawer() {
-    const { colors } = this.props;
+    const { colors, navigator } = this.props;
     return(
       <View style={styles.navigation}>
       {
         Router.navigation && Router.navigation.map((v, k) => {
           return (
             <TouchableHighlight
-              onPress={() => {
-                const { navigator } = this.props;
-                console.log(navigator.getCurrentRoutes());
-                Router.gotoPage(v.page, {
-                  test: 1
-                });
-              }}
+              onPress={() => this.goNav(v.page)}
               key={k}
               underlayColor={colors.light}>
               <View style={styles.navigationItem}>
@@ -85,6 +95,7 @@ class Drawer extends React.Component {
         ref={(drawer) => global.drawer = drawer}
         renderNavigationView={this.renderDrawer.bind(this)}
         drawerWidth={this.props.drawerWidth}
+        drawerLockMode={this.props.drawerLockMode}
         onDrawerClose={this.props.onDrawerClose}
         // drawerBackgroundColor={bgColor}
         onDrawerOpen={this.props.onDrawerOpen}

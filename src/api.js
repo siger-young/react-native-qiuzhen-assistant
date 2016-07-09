@@ -3,6 +3,7 @@ const DomParser = require('./parser').DOMParser;
 class AssistantApi {
   constructor(props) {
     this.save = [];
+    this.forceUpdate = false;
   }
   async getArticleInfo(url) {
     // console.log("A, I'm here");
@@ -18,6 +19,31 @@ class AssistantApi {
       author,
       html: article.toString(),
       summary: article.textContent.trim().split('\n')[0],
+    };
+  }
+  async getArticle(url) {
+    // console.log("A, I'm here");
+    const baseUrl = this.parseUrl(url).absolutePath; 
+    let response = await fetch(url);
+    // console.log(url);
+    let html = await response.text();
+    let doc = new DomParser().parseFromString(html, 'text/html');
+    const dispInfo = doc.getElementsByClassName('disp_info')[0];
+    const info = dispInfo.textContent.split('\xa0\xa0');
+    const author = info[0].split(':')[1].trim();
+    const time = info[1].split(':')[1].trim();
+    const clickUrl = dispInfo.getElementsByTagName('script')[0].getAttribute('src').trim()
+    let clickResponse = await fetch(`${baseUrl}${clickUrl}`);
+    let clickHtml = await clickResponse.text();
+    const click = /'\d*'/.exec(clickHtml)[0];
+    const article = doc.getElementsByClassName('disp_content')[0];
+    // console.log(articleHtml);
+    return {
+      author,
+      time,
+      click,
+      html: article.toString(),
+      baseUrl
     };
   }
   async getSub(classId, pn = 1, count = 5) {
@@ -154,7 +180,7 @@ class AssistantApi {
       return -1;
     };
     let data = [];
-    for(let i = 1; i < rows.length - 1; i++) {
+    for(let i = 1; i < rows.length; i++) {
       const cells = rows[i].getElementsByTagName('td');
       const className = cells[3].textContent.trim();
       where(data, className) !== -1 || (data.push({
@@ -173,6 +199,102 @@ class AssistantApi {
     // console.log(html);
     console.log(data);
     return data;
+  }
+  async getMark(year, term = 1, isGrade = false, target) {
+    const url = 'http://qiuzhen.eicbs.com/schinfo/A20/Score/ScoreSGTotal.aspx';
+    const general = await this._getInputValues(url, 'score', 'general');
+    const body = this.toQueryString({
+      ddlSchYear: year,
+      ddlSchTerm: term,
+      ddlExamType: '',
+      __VIEWSTATE: general.viewState,
+      __EVENTVALIDATION: general.eventValidation,
+      ['Button3']: 1,
+    });
+    //console.log((await this._getInputValues(url, 'score', 'grade', body)));
+    const validation = isGrade ? (await this._getInputValues(url, 'score', 'grade', body)) : general;
+    //const submitButton = isGrade ? 'Button3' : 'Button2';
+    const tableName = 'DataGrid2';
+    let response = await this.qFetch(url,
+      this.toQueryString({
+        ddlSchYear: year,
+        ddlSchTerm: term,
+        ddlExamType: '',
+        __VIEWSTATE: validation.viewState,
+        __EVENTVALIDATION: validation.eventValidation,
+        __EVENTTARGET: target,
+      })
+    );
+    let html = await response.text();
+    // console.log(html);
+    const doc = new DomParser().parseFromString(html, 'text/html');
+    const rows = doc.getElementById(tableName).getElementsByTagName('tr');
+    const where = (array, key) => {
+      for(let i = 0; i < array.length; i++) {
+        if(array[i].studentName === key)
+          return i;
+      }
+      return -1;
+    };
+    let data = [];
+    const header = rows[0].getElementsByTagName('td');
+    // console.log(header);
+    // for(let i = 1; i < rows.length - 1; i++) {
+    //   const cells = rows[i].getElementsByTagName('td');
+    //   const studentName = cells[5].textContent.trim();
+    //   const number = cells[4].textContent.trim();
+    //   where(data, studentName) !== -1 || (data.push({
+    //     key: data.length,
+    //     studentName,
+    //     mark: [],
+    //     rank: {},
+    //   }));
+    //   for(let j = 6; i < cells.length; i++) {
+    //     data[where(data, studentName)].mark.push(
+    //       {
+    //         field: header[j].textContent.trim(),
+    //         score: cells[j].textContent.trim(); 
+    //       }
+    //     );
+    //   }
+    //   data[where(data, studentName)].rank = {
+    //     classRank: cells[0],
+    //     gradeRank: cells[1],
+    //   }
+    // }
+    for(let i = 1; i < rows.length - 1; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      const studentName = cells[5].textContent.trim();
+      const number = cells[4].textContent.trim();
+      const order = [0, 1];
+      let mark = [], meta = [];
+      where(data, studentName) !== -1 || (data.push({
+        key: data.length,
+        studentName,
+        fields: [],
+      }));
+      // alert(i+ ' push');
+      for(let j = 6; j < cells.length; j++) {
+        mark.push({
+          field: header[j].textContent.trim(),
+          value: cells[j].textContent.trim(),
+        });
+      }
+      // alert(i+ ' mark');
+      for(let j = 0; j < order.length; j++) {
+        const index = order[j];
+        meta.push({
+          field: header[index].textContent.trim(),
+          value: cells[index].textContent.trim(),
+        });
+      }
+      // alert(i+ ' push');
+      data[where(data, studentName)].fields = mark.concat(meta);
+    }
+    // console.log(html);
+    //console.log(data);
+    return data;
+
   }
   async _getCookies(login) {
     let response = await fetch('http://qiuzhen.eicbs.com/web/manage/login/login.aspx',
@@ -208,10 +330,10 @@ class AssistantApi {
     );
     return response;
   }
-  async _getInputValues(url, idPrimary, idSecondary) {
+  async _getInputValues(url, idPrimary, idSecondary, body = '') {
     if (this.save[idPrimary] === undefined) this.save[idPrimary] = [];
     if (this.save[idPrimary][idSecondary]) return this.save[idPrimary][idSecondary];
-    let response = idPrimary == 'score' ? (await this.qFetch(url)) : (await fetch(url));
+    let response = idPrimary == 'score' ? (await this.qFetch(url, body)) : (await fetch(url));
     let html = await response.text();
     let doc = new DomParser().parseFromString(html, 'text/html');
     let viewState = doc.getElementById('__VIEWSTATE') ? doc.getElementById('__VIEWSTATE').getAttribute('value') : '';

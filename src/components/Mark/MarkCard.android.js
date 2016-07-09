@@ -5,11 +5,11 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-import styles from './ExamCard.styles';
+import styles from './MarkCard.styles';
 import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-class ExamCard extends React.Component {
+class MarkCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,7 +31,6 @@ class ExamCard extends React.Component {
     });
   }
   render() {
-    console.log(this.props.handler);
     const { dark, light, primary, divider } = this.props.colors;
     return (
       <View style={styles.card}>
@@ -40,7 +39,7 @@ class ExamCard extends React.Component {
             <View style={styles.switcherInner}>
               <View style={styles.left}>
                 <Text style={styles.className}>
-                {this.props.className}
+                {this.props.studentName}
                 </Text>
               </View>
               <View style={styles.right}>
@@ -49,28 +48,24 @@ class ExamCard extends React.Component {
             </View>
           </TouchableHighlight>
           <View style={styles.exams}>
-            {(this.state.expanded && this.props.exams) && this.props.exams.map((v, k) => {
+            {(this.state.expanded && this.props.fields) && this.props.fields.map((v, k) => {
               return(
-                <TouchableHighlight
+                <View
                   key={k}
-                  style={[styles.examSwitcher, { borderTopWidth: 1, borderTopColor: divider }]}
-                  underlayColor={light}
-                  onPress={() => {this.props.handler({
-                    className: this.props.className,
-                    name: v.examName,
-                    link: v.examLink,
-                  })}}>
+                  style={[styles.examSwitcher, { borderTopWidth: 1, borderTopColor: divider }]}>
                   <View style={styles.switcherInner}>
                     <View style={styles.left}>
                       <Text style={styles.examName}>
-                      {v.examName}
+                      {v.field}
                       </Text>
                     </View>
                     <View style={styles.right}>
-                      <Icon style={styles.arrow} name={'keyboard-arrow-right'} size={24} color={primary} />
+                      <Text style={styles.examName}>
+                      {v.value}
+                      </Text>
                     </View>
                   </View>
-                </TouchableHighlight>
+                </View>
               );
             })}
           </View>
@@ -82,4 +77,4 @@ class ExamCard extends React.Component {
 
 export default connect(state => ({
   colors: state.config.theme.colors,
-}), dispatch => ({}))(ExamCard);
+}), dispatch => ({}))(MarkCard);

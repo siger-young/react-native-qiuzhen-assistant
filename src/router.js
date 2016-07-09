@@ -1,21 +1,31 @@
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Splash from './pages/Splash';
 import News from './pages/News';
+import NewsView from './pages/NewsView';
 import Mark from './pages/Mark'
+import MarkView from './pages/MarkView'
 
 import root from './app';
 
 let Pages = {};
 Pages.Splash = {
   component: Splash,
+  params: {
+    drawerLockMode: 'locked-closed',
+  }
 };
 
 Pages.News = {
   component: News,
   params: {
     title: '新闻',
+    // drawerLockMode: 'unlocked',
   }
 };
+
+Pages.NewsView = {
+  component: NewsView,
+}
 
 Pages.Mark = {
   component: Mark,
@@ -23,6 +33,11 @@ Pages.Mark = {
     title: '成绩',
   }
 };
+
+Pages.MarkView = {
+  component: MarkView,
+}
+
 
 let Navigation = [
   {
@@ -42,7 +57,6 @@ let Navigation = [
 export default class Router {
   static gotoPage(page, data) {
     let router = {
-      ...page,
       component: page.component,
       params: {
         ...page.params,
@@ -51,7 +65,9 @@ export default class Router {
     };
     root.getInstance().push(router);
   }
-
+  static jumpTo(page) {
+    root.getInstance().jumpTo(page);
+  }
   static pop(num = 1) {
     root.getInstance().pop(num);
   }
@@ -62,7 +78,6 @@ export default class Router {
 
   static replace(page, data) {
     let router = {
-      ...page,
       component: page.component,
       params: {
         ...page.params,

@@ -7,18 +7,19 @@ import {
   View,
 } from 'react-native';
 
-import styles from './Mark.styles';
+import styles from './MarkView.styles';
 import AssistantApi from '../api';
 import Toolbar from '../components/Toolbar';
 import Drawer from '../components/Drawer';
 import { connect } from 'react-redux';
-import ExamCard from '../components/Mark/ExamCard';
+import MarkCard from '../components/Mark/MarkCard';
 import Router from '../router';
 
-export class Mark extends React.Component {
+export class MarkView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      text: [],
       isRefreshing: true,
       dataSource: new ListView.DataSource({
         rowHasChanged: (r1, r2) => r1 !== r2,
@@ -35,35 +36,22 @@ export class Mark extends React.Component {
     }, async () => {
       let filter = await AssistantApi.getFilter();
       //console.log(filter);
+      let sub = await AssistantApi.getMark(filter.current.year, filter.current.term, false, this.props.link);
+      // alert('OK');
+      //console.log(sub);
       this.setState({
-        year: filter.current.year,
-        term: filter.current.term,
-      }, async () => {
-        let sub = await AssistantApi.getExaminations(filter.current.year, filter.current.term, false);
-        console.log(sub);
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(sub),
-          isRefreshing: false,
-        });
-      })
+        dataSource: this.state.dataSource.cloneWithRows(sub),
+        isRefreshing: false,
+      });
     });
   }
   renderRow(row) {
     return (
-      <ExamCard
+      <MarkCard
         key={row.key}
-        className={row.className}
-        exams={row.exams}
-        handler={(link) => {
-          this.goMark(link);
-        }} />
+        studentName={row.studentName}
+        fields={row.fields} />
     );
-  }
-  goMark(exam) {
-    Router.gotoPage(Router.pages.MarkView, {
-      title: `${exam.className} ${exam.name}`,
-      link: exam.link,
-    })
   }
   renderSeparator(sId, rId) {
     const { seperatorColor } = this.props;
@@ -86,7 +74,8 @@ export class Mark extends React.Component {
           barStyle={"light-content"} />
         <Toolbar
           title={this.props.title}
-          onIconClicked={this.openDrawer.bind(this)} />
+          navIconName={"arrow-back"}
+          onIconClicked={Router.pop} />
         <ListView
           style={styles.listView}
           dataSource={this.state.dataSource}
@@ -118,4 +107,4 @@ export default connect(state => ({
   footerColor: state.config.theme.colors.light,
   seperatorColor: state.config.theme.colors.divider,
   colors: state.config.theme.colors,
-}), dispatch => ({}))(Mark);
+}), dispatch => ({}))(MarkView);
